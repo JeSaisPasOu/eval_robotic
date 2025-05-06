@@ -1,8 +1,9 @@
 import sys
 sys.path.append('./source/PY')
 
-from menu import draw_menu, handle_events
-import pygame # type: ignore
+# Maintenant tu peux importer le fichier menu.py
+from menu import *
+import pygame
 import sys
 
 # Initialisation de pygame
@@ -12,17 +13,41 @@ pygame.init()
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("Spider-man")
+pygame.display.set_caption("Menu Pygame")
 
+# Boucle principale
 def main():
+    # Menu principal
     while True:
-        draw_menu()
-        choice = handle_events()
+        draw_main_menu()  # Affiche le menu principal
+        choice = handle_main_menu_events()  # Gère les événements du menu principal
 
         if choice == "play":
             print("L'utilisateur a choisi de jouer")
-            # Ici, tu peux démarrer un autre écran ou une autre scène du jeu
-            # Par exemple, appeler une fonction `game_loop()`
+            second_menu()  # Affiche le deuxième menu
+            break
+
+def second_menu():
+    # Menu secondaire avec 4 choix
+    while True:
+        draw_second_menu()  # Affiche le deuxième menu
+        choice = handle_second_menu_events()  # Gère les événements du menu secondaire
+
+        if choice == "Bouger une patte":
+            print("Bouger une patte choisie")
+            # Ajoute l'action correspondante ici
+            break
+        elif choice == "option2":
+            print("Option 2 choisie")
+            # Ajoute l'action correspondante ici
+            break
+        elif choice == "option3":
+            print("Option 3 choisie")
+            # Ajoute l'action correspondante ici
+            break
+        elif choice == "option4":
+            print("Option 4 choisie")
+            # Ajoute l'action correspondante ici
             break
 
 if __name__ == "__main__":
