@@ -1,5 +1,12 @@
 import pygame
 import sys
+import os
+
+# Ajoute le chemin vers la racine du projet
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..')))
+# Maintenant tu peux importer
+from Option_marche.marche import Marche
+
 
 # Initialisation de pygame
 pygame.init()
@@ -52,7 +59,7 @@ def draw_second_menu():
     # Texte du menu
     title_text = font.render("Deuxième Menu", True, BLACK)
     option1_text = font.render("Bouger une patte", True, BLACK)
-    option2_text = font.render("Option 2", True, BLACK)
+    option2_text = font.render("Marche télécommandée (z,q,s,d)", True, BLACK)
     option3_text = font.render("Option 3", True, BLACK)
     option4_text = font.render("Option 4", True, BLACK)
 
@@ -74,7 +81,9 @@ def handle_second_menu_events():
             if 200 < event.pos[1] < 240:  # Vérifie si "Option 1" est cliqué
                 return "Bouger une patte"
             if 250 < event.pos[1] < 290:  # Vérifie si "Option 2" est cliqué
-                return "option2"
+                marche = Marche()
+                marche.run()
+                
             if 300 < event.pos[1] < 340:  # Vérifie si "Option 3" est cliqué
                 return "option3"
             if 350 < event.pos[1] < 390:  # Vérifie si "Option 4" est cliqué
