@@ -8,7 +8,7 @@ import math
 import pybullet as p
 from scipy.spatial.transform import Rotation
 
-class Rotate:
+class Acceleration:
     def __init__(self):
         self.robotPath = "phantomx_description/urdf/phantomx.urdf"
         self.sim = Simulation(self.robotPath, gui=True, panels=True, useUrdfInertia=False)
@@ -16,6 +16,13 @@ class Rotate:
         self.robot = SimpleRobotSimulation(self.sim)
         self.robot.init()
         print(self.robot)
+
+        # Ajout des curseurs pour ajuster les paramètres de marche
+        self.slider_speed = p.addUserDebugParameter("vitesse_deplacement", 0.1, 5.0, 1.0)
+        self.slider_amplitude = p.addUserDebugParameter("Amplitude", 0.01, 0.1, 0.08)
+        self.slider_height = p.addUserDebugParameter("Hauteur", 0.01, 0.1, 0.05)
+        self.slider_frequency = p.addUserDebugParameter("Fréquence", 0.1, 2.0, 1.0)
+
         self.params = Parameters(
             freq=50,
             speed=1,
@@ -32,6 +39,10 @@ class Rotate:
         return rot.as_quat()
 
     def run(self):
+
+        # Récupération des paramètres dynamiques via les curseurs
+        extra_angle = 0
+
         mode_rotation = 0  # 0: normal, -1: gauche, +1: droite
         mode_deplacement = False
         index_patte = [1, 2, 3, 4, 5, 6]
@@ -40,6 +51,10 @@ class Rotate:
         utils.setPositionToRobot(0, 0, 0.05, self.robot, self.params, extra_theta=0)
         self.robot.smooth_tick_read_and_write(1, verbose=True)
         while True:
+            speed = p.readUserDebugParameter(self.slider_speed)
+            amplitude = p.readUserDebugParameter(self.slider_amplitude)
+            height = p.readUserDebugParameter(self.slider_height)
+            frequency = p.readUserDebugParameter(self.slider_frequency)
 
             keys = p.getKeyboardEvents()
             if ord('j') in keys and keys[ord('j')] & p.KEY_IS_DOWN:
@@ -52,18 +67,26 @@ class Rotate:
             elif ord('z') in keys and keys[ord('z')] & p.KEY_IS_DOWN:
                 mode_rotation = 0
                 mode_deplacement = True
+                extra_angle = math.pi / 2
+
 
             elif ord('q') in keys and keys[ord('q')] & p.KEY_IS_DOWN:
                 mode_rotation = 0
                 mode_deplacement = True
+                extra_angle = -math.pi
+
 
             elif ord('s') in keys and keys[ord('s')] & p.KEY_IS_DOWN:
                 mode_rotation = 0
                 mode_deplacement = True
+                extra_angle = -math.pi / 2
+
 
             elif ord('d') in keys and keys[ord('d')] & p.KEY_IS_DOWN:
                 mode_rotation = 0
                 mode_deplacement = True
+                extra_angle = 0
+
 
             else:
                 mode_rotation = 0
@@ -73,30 +96,32 @@ class Rotate:
             index_patte1 = [1, 3, 5]  # phase 0
             index_patte2 = [2, 4, 6]  # phase 1
 
-            if mode_deplacement :
-                # déplacement normal
-                
+            # Calcul de la position des jambes selon les paramètres dynamiques
+            if mode_deplacement:
                 for l in index_patte1:
-                    thetas = kinematics.triangle(0, -0.05, 0.03, 0.08, self.sim.t, leg_id=l)
+                    thetas = kinematics.triangle(0, -0.05, height, amplitude, self.sim.t * frequency, leg_id=l, extra_angle=extra_angle)
+
                     for m in range(3):
                         self.robot.legs[l][m].goal_position = thetas[m]
 
                 for l in index_patte2:
-                    thetas = kinematics.triangle(0, -0.05, 0.03, 0.08, self.sim.t + 1, leg_id=l)
+                    thetas = kinematics.triangle(0, -0.05, height, amplitude, (self.sim.t + 1) * frequency +1, leg_id=l, extra_angle=extra_angle)
+                    print(height)
                     for m in range(3):
                         self.robot.legs[l][m].goal_position = thetas[m]
+
             elif mode_rotation != 0:
-                # rotation : +x pour droite, -x pour gauche
+                # Rotation
                 t_inverse = self.sim.t * mode_rotation
 
                 for l in index_patte1:
-                    thetas = kinematics.triangle(0.2, -0.10, 0.03, 0.08, t_inverse)
-                    for m in range(0,3):
+                    thetas = kinematics.triangle(0.2, -0.10, height, amplitude, t_inverse)
+                    for m in range(0, 3):
                         self.robot.legs[l][m].goal_position = thetas[m]
 
                 for l in index_patte2:
-                    thetas = kinematics.triangle(0.2, -0.10, 0.03, 0.08, t_inverse+1)
-                    for m in range(0,3):
+                    thetas = kinematics.triangle(0.2, -0.10, height, amplitude, t_inverse + 1)
+                    for m in range(0, 3):
                         self.robot.legs[l][m].goal_position = thetas[m]
 
             else:

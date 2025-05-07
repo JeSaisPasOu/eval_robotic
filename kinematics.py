@@ -233,73 +233,68 @@ def rotaton_2D(x, y, z, angle):
  
     return [x_new, y_new, z]
 
-def triangle(x, z, h, w, t, leg_id=None):
+def triangle(x, z, h, w, t, leg_id=None, extra_angle=0):
+    t2 = t  # phase temporelle du pas
 
-    keys = p.getKeyboardEvents()
-    extra_angle = 0 
-    if ord('d') in keys and keys[ord('d')] & p.KEY_IS_DOWN:
-        extra_angle = 0
-    if ord('q') in keys and keys[ord('q')] & p.KEY_IS_DOWN:
-        extra_angle = -math.pi
-    if ord('z') in keys and keys[ord('z')] & p.KEY_IS_DOWN:
-        extra_angle = math.pi/2
-    if ord('s') in keys and keys[ord('s')] & p.KEY_IS_DOWN:
-        extra_angle = -math.pi/2
-    
-    phase = t % 2
- 
+    # Appliquer la direction de déplacement
+    x_local = x * math.cos(extra_angle)
+    y_local = x * math.sin(extra_angle)
+
+    phase = t2 % 2
+
     if phase < 1:
         ratio = phase
-        y1 = w/2
-        y2 = -w/2
+        y1 = y_local + w / 2
+        y2 = y_local - w / 2
         z1 = z
         z2 = z
     elif phase < 1.5:
-        ratio = (phase -1) * 2
-        y1 = -w/2
-        y2 = 0
+        ratio = (phase - 1) * 2
+        y1 = y_local - w / 2
+        y2 = y_local
         z1 = z
         z2 = z + h
     else:
-        ratio = (phase -1.5) * 2
-        y1 = 0
-        y2 = w/2
+        ratio = (phase - 1.5) * 2
+        y1 = y_local
+        y2 = y_local + w / 2
         z1 = z + h
         z2 = z
-    
+
     target_y = interpol(y1, y2, ratio)
     target_z = interpol(z1, z2, ratio)
+
     if leg_id is None:
-        alpha = computeIK(x, target_y, target_z)
+        alpha = computeIK(x_local, target_y, target_z)
     else:
-        alpha= computeIKOriented(x, target_y, target_z, leg_id, extra_angle)
-        
+        alpha = computeIKOriented(x_local, target_y, target_z, leg_id, extra_angle)
+
     return alpha
 
 
 def interpol(p1, p2, ratio):
     return p1 + ratio * (p2-p1)
 
-def computeIKOrientedperso(x, y, z,leg_id,sens):
-    offset_x= 0.2
-    offset_y= 0
-    offset_z= -0.05
-    if sens == 1 :
-        new_x, new_y, new_z= rotaton_2D(x, y, z,-LEG_ANGLES[leg_id-1])
-    elif sens == 2:
-        new_x, new_y, new_z= rotaton_2D(x, y, z,-LEG_ANGLES[leg_id-1])
-        new_x = -new_x
-        new_y= -new_y
-    elif sens == 3 :
-        new_x, new_y, new_z= rotaton_2D(x, y, z,-LEG_ANGLES[leg_id-1]+math.pi/2)
-    elif sens == 4:
-        new_x, new_y, new_z= rotaton_2D(x, y, z,-LEG_ANGLES[leg_id-1]+math.pi/2)
-        new_x = -new_x
-        new_y= -new_y
-    else:
-        new_x, new_y, new_z= rotaton_2D(0, 0, z,-LEG_ANGLES[leg_id-1])
+# def computeIKOrientedperso(x, y, z,leg_id,sens):
+#     offset_x= 0.2
+#     offset_y= 0
+#     offset_z= -0.05
+#     if sens == 1 :
+#         new_x, new_y, new_z= rotaton_2D(x, y, z,-LEG_ANGLES[leg_id-1])
+#     elif sens == 2:
+#         new_x, new_y, new_z= rotaton_2D(x, y, z,-LEG_ANGLES[leg_id-1])
+#         new_x = -new_x
+#         new_y= -new_y
+#     elif sens == 3 :
+#         new_x, new_y, new_z= rotaton_2D(x, y, z,-LEG_ANGLES[leg_id-1]+math.pi/2)
+#     elif sens == 4:
+#         new_x, new_y, new_z= rotaton_2D(x, y, z,-LEG_ANGLES[leg_id-1]+math.pi/2)
+#         new_x = -new_x
+#         new_y= -new_y
+#     else:
+#         new_x, new_y, new_z= rotaton_2D(0, 0, z,-LEG_ANGLES[leg_id-1])
 
-    return computeIK(new_x+ offset_x, new_y+ offset_y, new_z+ offset_z)
+#     return computeIK(new_x+ offset_x, new_y+ offset_y, new_z+ offset_z)
 
 def computeIKOriented(x, y, z,leg_id,angle):
     offset_x= 0.2

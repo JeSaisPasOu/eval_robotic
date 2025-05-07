@@ -247,36 +247,54 @@ class SimpleRobot:
         if verbose:
             print("IO tick done")
 
-    def smooth_tick_read_and_write(self, delay, verbose=False):
-        # Reads the current state of the robot and applies the write positions smoothly over 'time'
-        self.tick_read()
-        # Setting the start and end positions
-        t0 = time.time()
-        for m in self.motors():
-            m.smooth_start_position = m.present_position
-            m.smooth_final_position = m.goal_position
-            if verbose:
-                print(
-                    "m.smooth_start_position {}, m.smooth_final_position {}".format(
-                        m.smooth_start_position,
-                        m.smooth_final_position,
-                    )
-                )
-        t = time.time() - t0
-        while t < delay:
-            for m in self.motors():
-                m.goal_position = (t / delay) * (
-                    m.smooth_final_position - m.smooth_start_position
-                ) + m.smooth_start_position
-            self.tick_write(verbose=verbose)
-            t = time.time() - t0
-        for m in self.motors():
-            m.goal_position = m.smooth_final_position
-        self.tick_write(verbose=verbose)
-        self.tick_read()
-        self.print_dk()
+def smooth_tick_read_and_write(self, delay, verbose=False):
+    """
+    Interpole en douceur les mouvements moteurs sur 'delay' secondes,
+    en utilisant une courbe de type smoothstep (ease-in-out).
+    """
+    def smoothstep(x):
+        # Interpolation lissée (0 ≤ x ≤ 1)
+        return x * x * (3 - 2 * x)
+
+    self.tick_read()
+
+    t0 = time.time()
+    for m in self.motors():
+        m.smooth_start_position = m.present_position
+        m.smooth_final_position = m.goal_position
         if verbose:
-            print("IO smooth tick done")
+            print(
+                f"m.smooth_start_position {m.smooth_start_position}, m.smooth_final_position {m.smooth_final_position}"
+            )
+
+    t = time.time() - t0
+    dt_target = 0.02  # 50 Hz
+
+    while t < delay:
+        alpha = smoothstep(t / delay)
+        for m in self.motors():
+            m.goal_position = alpha * (
+                m.smooth_final_position - m.smooth_start_position
+            ) + m.smooth_start_position
+
+        self.tick_write(verbose=verbose)
+        self.sim.tick()
+
+        elapsed = time.time() - t0
+        sleep_time = dt_target - (elapsed - t)
+        if sleep_time > 0:
+            time.sleep(sleep_time)
+        t = time.time() - t0
+
+    # Dernière écriture à la position finale
+    for m in self.motors():
+        m.goal_position = m.smooth_final_position
+    self.tick_write(verbose=verbose)
+    self.tick_read()
+    self.print_dk()
+
+    if verbose:
+        print("IO smooth tick done")
 
 
 # Class used to simulate the robot in PyBullet's (actually onshape_to_robot) environnment
@@ -512,7 +530,8 @@ def setPositionToRobot(x, y, z, robot, params, extra_theta=0):
     angles = []
     for i in range(1, 7):
         # For the robot to move forward, the legs have to move backwards, hence the "-"
-        angles.append(computeIKOriented(-x, -y, -z, i, params, extra_theta=extra_theta))
+        angles.append(computeIKOriented(-x, -y, -z, i, extra_theta))
+
 
     if USING_SIMPLE_ROBOT:
         for i in range(1, 7):
