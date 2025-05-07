@@ -276,6 +276,7 @@ def triangle(x, z, h, w, t, leg_id=None):
         
     return alpha
 
+
 def interpol(p1, p2, ratio):
     return p1 + ratio * (p2-p1)
 

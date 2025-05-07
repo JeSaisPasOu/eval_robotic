@@ -6,6 +6,7 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..')))
 # Maintenant tu peux importer
 from Option_marche.marche import Marche
+from Option_rotation.rotate import Rotate 
 
 
 # Initialisation de pygame
@@ -60,7 +61,7 @@ def draw_second_menu():
     title_text = font.render("Deuxième Menu", True, BLACK)
     option1_text = font.render("Bouger une patte", True, BLACK)
     option2_text = font.render("Marche télécommandée (z,q,s,d)", True, BLACK)
-    option3_text = font.render("Option 3", True, BLACK)
+    option3_text = font.render("Rotation Hexapode", True, BLACK)
     option4_text = font.render("Option 4", True, BLACK)
 
     # Afficher le titre et les options
@@ -85,7 +86,8 @@ def handle_second_menu_events():
                 marche.run()
                 
             if 300 < event.pos[1] < 340:  # Vérifie si "Option 3" est cliqué
-                return "option3"
+                rotate = Rotate()
+                rotate.run()
             if 350 < event.pos[1] < 390:  # Vérifie si "Option 4" est cliqué
                 return "option4"
 
