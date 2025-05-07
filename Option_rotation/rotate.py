@@ -52,18 +52,24 @@ class Rotate:
             elif ord('z') in keys and keys[ord('z')] & p.KEY_IS_DOWN:
                 mode_rotation = 0
                 mode_deplacement = True
+                extra_angle = math.pi / 2
+
 
             elif ord('q') in keys and keys[ord('q')] & p.KEY_IS_DOWN:
                 mode_rotation = 0
                 mode_deplacement = True
+                extra_angle = -math.pi
+
 
             elif ord('s') in keys and keys[ord('s')] & p.KEY_IS_DOWN:
                 mode_rotation = 0
                 mode_deplacement = True
-
+                extra_angle = -math.pi / 2
+            
             elif ord('d') in keys and keys[ord('d')] & p.KEY_IS_DOWN:
                 mode_rotation = 0
                 mode_deplacement = True
+                extra_angle = 0
 
             else:
                 mode_rotation = 0
@@ -77,12 +83,12 @@ class Rotate:
                 # déplacement normal
                 
                 for l in index_patte1:
-                    thetas = kinematics.triangle(0, -0.05, 0.03, 0.08, self.sim.t, leg_id=l)
+                    thetas = kinematics.triangle(0, -0.05, 0.03, 0.08, self.sim.t, leg_id=l, extra_angle=extra_angle)
                     for m in range(3):
                         self.robot.legs[l][m].goal_position = thetas[m]
 
                 for l in index_patte2:
-                    thetas = kinematics.triangle(0, -0.05, 0.03, 0.08, self.sim.t + 1, leg_id=l)
+                    thetas = kinematics.triangle(0, -0.05, 0.03, 0.08, self.sim.t + 1, leg_id=l, extra_angle=extra_angle)
                     for m in range(3):
                         self.robot.legs[l][m].goal_position = thetas[m]
             elif mode_rotation != 0:
