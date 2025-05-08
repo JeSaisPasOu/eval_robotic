@@ -7,7 +7,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../.
 # Maintenant tu peux importer
 from Option_marche.marche import Marche
 from Option_rotation.rotate import Rotate 
-from Option_courbe.acceleration import Acceleration
+from Option_acceleration.acceleration import Acceleration
 
 
 # Initialisation de pygame
