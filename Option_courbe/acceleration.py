@@ -7,6 +7,8 @@ import time
 import math
 import pybullet as p
 from scipy.spatial.transform import Rotation
+from controle import Controle
+
 
 class Acceleration:
     def __init__(self):
@@ -57,40 +59,9 @@ class Acceleration:
             frequency = p.readUserDebugParameter(self.slider_frequency)
 
             keys = p.getKeyboardEvents()
-            if ord('j') in keys and keys[ord('j')] & p.KEY_IS_DOWN:
-                mode_rotation = 1
-                is_idle = False
-            elif ord('l') in keys and keys[ord('l')] & p.KEY_IS_DOWN:
-                mode_rotation = -1
-                is_idle = False
 
-            elif ord('z') in keys and keys[ord('z')] & p.KEY_IS_DOWN:
-                mode_rotation = 0
-                mode_deplacement = True
-                extra_angle = math.pi / 2
+            mode_rotation, mode_deplacement, extra_angle, is_idle = Controle.handle_keys(keys)
 
-
-            elif ord('q') in keys and keys[ord('q')] & p.KEY_IS_DOWN:
-                mode_rotation = 0
-                mode_deplacement = True
-                extra_angle = -math.pi
-
-
-            elif ord('s') in keys and keys[ord('s')] & p.KEY_IS_DOWN:
-                mode_rotation = 0
-                mode_deplacement = True
-                extra_angle = -math.pi / 2
-
-
-            elif ord('d') in keys and keys[ord('d')] & p.KEY_IS_DOWN:
-                mode_rotation = 0
-                mode_deplacement = True
-                extra_angle = 0
-
-
-            else:
-                mode_rotation = 0
-                mode_deplacement = False
 
             # Groupes de jambes
             index_patte1 = [1, 3, 5]  # phase 0

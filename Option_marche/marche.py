@@ -4,6 +4,8 @@ import kinematics
 import time
 import math
 from scipy.spatial.transform import Rotation
+import pybullet as p
+from controle import Controle
 
 class Marche:
     def __init__(self):
@@ -20,6 +22,10 @@ class Marche:
 
     def run(self):
         while True:
+            keys = p.getKeyboardEvents()
+
+            mode_rotation, mode_deplacement, extra_angle, is_idle = Controle.handle_keys(keys)
+
             self.robot.tick_read_and_write()
             val = 10 * math.sin(time.time()) * math.pi / 180
 
@@ -27,12 +33,12 @@ class Marche:
             index_patte2 = [2, 4, 6]
 
             for l in index_patte1:
-                thetas = kinematics.triangle(0, -0.05, 0.03, 0.08, self.sim.t, leg_id=l)
+                thetas = kinematics.triangle(0, -0.05, 0.03, 0.08, self.sim.t, leg_id=l, extra_angle=extra_angle)
                 for m in range(3):
                     self.robot.legs[l][m].goal_position = thetas[m]
 
             for l in index_patte2:
-                thetas = kinematics.triangle(0, -0.05, 0.03, 0.08, self.sim.t + 1, leg_id=l)
+                thetas = kinematics.triangle(0, -0.05, 0.03, 0.08, self.sim.t + 1, leg_id=l, extra_angle=extra_angle)
                 for m in range(3):
                     self.robot.legs[l][m].goal_position = thetas[m]
 
