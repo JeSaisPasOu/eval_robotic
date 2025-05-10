@@ -8,7 +8,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../.
 from Option_marche.marche import Marche
 from Option_rotation.rotate import Rotate 
 from Option_acceleration.acceleration import Acceleration
-
+from Option_controle_records.records import Marche_controle
 
 # Initialisation de pygame
 pygame.init()
@@ -64,6 +64,7 @@ def draw_second_menu():
     option2_text = font.render("Marche télécommandée (z,q,s,d)", True, BLACK)
     option3_text = font.render("Rotation Hexapode", True, BLACK)
     option4_text = font.render("Gerer acceleration hexapode", True, BLACK)
+    option6_text = font.render("Enregistrer les mouvements effectués et les lires", True, BLACK)
 
     # Afficher le titre et les options
     screen.blit(title_text, (SCREEN_WIDTH // 2 - title_text.get_width() // 2, 100))
@@ -71,6 +72,7 @@ def draw_second_menu():
     screen.blit(option2_text, (SCREEN_WIDTH // 2 - option2_text.get_width() // 2, 250))
     screen.blit(option3_text, (SCREEN_WIDTH // 2 - option3_text.get_width() // 2, 300))
     screen.blit(option4_text, (SCREEN_WIDTH // 2 - option4_text.get_width() // 2, 350))
+    screen.blit(option6_text, (SCREEN_WIDTH // 2 - option4_text.get_width() // 2, 400))
 
     pygame.display.update()
 
@@ -92,5 +94,8 @@ def handle_second_menu_events():
             if 350 < event.pos[1] < 390:  # Vérifie si "Option 4" est cliqué
                 acceleration = Acceleration()
                 acceleration.run()
+            if 400 < event.pos[1] < 440:  # Vérifie si "Option 4" est cliqué
+                controle = Marche_controle()
+                controle.run()
 
     return None
