@@ -1,10 +1,10 @@
 import sys
+import pygame
+
+# Ajouter le chemin vers le dossier contenant menu.py
 sys.path.append('./source/PY')
 
-# Maintenant tu peux importer le fichier menu.py
 from menu import *
-import pygame
-import sys
 
 # Initialisation de pygame
 pygame.init()
@@ -17,15 +17,16 @@ pygame.display.set_caption("Menu Pygame")
 
 # Boucle principale
 def main():
-    # Menu principal
     while True:
-        draw_main_menu()  # Affiche le menu principal
-        choice = handle_main_menu_events()  # Gère les événements du menu principal
+        draw_main_menu()
+        choice = handle_main_menu_events()
 
         if choice == "play":
-            print("L'utilisateur a choisi de jouer")
-            second_menu()  # Affiche le deuxième menu
-            break
+            second_menu()
+        elif choice == "quit":
+            pygame.quit()
+            sys.exit()
+
 
 def second_menu():
     # Menu secondaire avec 4 choix
