@@ -33,6 +33,7 @@ class Rotate:
         return rot.as_quat()
 
     def run(self):
+        
         mode_rotation = 0  # 0: normal, -1: gauche, +1: droite
         mode_deplacement = False
         index_patte = [1, 2, 3, 4, 5, 6]
@@ -41,6 +42,7 @@ class Rotate:
         utils.setPositionToRobot(0, 0, 0.05, self.robot, self.params, extra_theta=0)
         self.robot.smooth_tick_read_and_write(1, verbose=True)
         while True:
+            temps=time.time()
 
             keys = p.getKeyboardEvents()
             mode_rotation, mode_deplacement, extra_angle, is_idle = Controle.handle_keys(keys)
@@ -84,3 +86,4 @@ class Rotate:
             self.robot.tick_read_and_write()
 
             self.sim.tick()
+            print(f"periode ={(time.time()-temps)*1000:.1f}ms")

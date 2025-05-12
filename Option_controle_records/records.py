@@ -31,6 +31,7 @@ class Marche_controle:
         self.recording = False
         self.recorded_frames = []
         self.coord_text_id = None
+        self.counter = 0
 
 
     def to_pybullet_quaternion(self, roll, pitch, yaw, degrees=False):
@@ -85,15 +86,15 @@ class Marche_controle:
         self.robot.smooth_tick_read_and_write(1, verbose=True)
 
         while True:
+            temps=time.time()
             keys = p.getKeyboardEvents()
 
-            # ESC pour quitter proprement
             if 27 in keys and keys[27] & p.KEY_WAS_TRIGGERED:
                 if self.recording:
                     self.export_to_xml()
                 break
 
-             # O pour rotation + relecture à l’envers
+            # O pour rotation + relecture à l’envers
             if ord('o') in keys and keys[ord('o')] & p.KEY_WAS_TRIGGERED:
                 self.replay_reverse("record.xml")
 
@@ -136,17 +137,19 @@ class Marche_controle:
 
             if self.recording:
                 self.record_frame()
-
-            # Récupérer la position du robot et afficher dans la simulation 3D
-            pos, _ = p.getBasePositionAndOrientation(self.sim.robot)
-            if self.coord_text_id is not None:
-                p.removeUserDebugItem(self.coord_text_id)
-            self.coord_text_id = p.addUserDebugText(
-                f"x: {pos[0]:.2f}, y: {pos[1]:.2f}",
-                [pos[0], pos[1], 0.6],
-                textColorRGB=[1, 0, 0],
-                textSize=1.5
-            )
-
+            print(f"periode1 ={(time.time()-temps)*1000:.1f}ms")
+            self.counter += 1
+            if self.counter % 25 == 0:  # ~toutes les 0.25 s si freq ≈ 100Hz
+                pos, _ = p.getBasePositionAndOrientation(self.sim.robot)
+                if self.coord_text_id is not None:
+                    p.removeUserDebugItem(self.coord_text_id)
+                self.coord_text_id = p.addUserDebugText(
+                    f"x: {pos[0]:.2f}, y: {pos[1]:.2f}",
+                    [pos[0], pos[1], 0.6],
+                    textColorRGB=[1, 0, 0],
+                    textSize=1.5
+                )
+                
             self.robot.tick_read_and_write()
             self.sim.tick()
+            print(f"periode2 ={(time.time()-temps)*1000:.1f}ms")
