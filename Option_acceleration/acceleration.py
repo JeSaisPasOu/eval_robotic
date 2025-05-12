@@ -23,7 +23,8 @@ class Acceleration:
         self.slider_speed = p.addUserDebugParameter("vitesse_deplacement", 0.1, 5.0, 1.0)
         self.slider_amplitude = p.addUserDebugParameter("Amplitude", 0.01, 0.1, 0.08)
         self.slider_height = p.addUserDebugParameter("Hauteur", 0.01, 0.1, 0.05)
-        self.slider_frequency = p.addUserDebugParameter("Frequence", 0.1, 16.0, 1.0)
+        self.slider_frequency = p.addUserDebugParameter("Frequence", 0.1, 16, 1)
+
 
         self.params = Parameters(
             freq=50,
@@ -56,7 +57,7 @@ class Acceleration:
             speed = p.readUserDebugParameter(self.slider_speed)
             amplitude = p.readUserDebugParameter(self.slider_amplitude)
             height = p.readUserDebugParameter(self.slider_height)
-            frequency = p.readUserDebugParameter(self.slider_frequency)
+            frequency = round(p.readUserDebugParameter(self.slider_frequency))
 
             keys = p.getKeyboardEvents()
 
@@ -83,7 +84,7 @@ class Acceleration:
 
             elif mode_rotation != 0:
                 # Rotation
-                t_inverse = self.sim.t * mode_rotation
+                t_inverse = (self.sim.t * frequency) * mode_rotation
 
                 for l in index_patte1:
                     thetas = kinematics.triangle(0.2, -0.10, height, amplitude, t_inverse)
