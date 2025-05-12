@@ -20,8 +20,7 @@ class Acceleration:
         print(self.robot)
 
         # Ajout des curseurs pour ajuster les paramètres de marche
-        self.slider_speed = p.addUserDebugParameter("vitesse_deplacement", 0.1, 5.0, 1.0)
-        self.slider_amplitude = p.addUserDebugParameter("Amplitude", 0.01, 0.1, 0.08)
+        self.slider_amplitude = p.addUserDebugParameter("Amplitude", 0.01, 0.15, 0.08)
         self.slider_height = p.addUserDebugParameter("Hauteur", 0.01, 0.1, 0.05)
         self.slider_frequency = p.addUserDebugParameter("Frequence", 0.1, 16, 1)
 
@@ -54,7 +53,6 @@ class Acceleration:
         utils.setPositionToRobot(0, 0, 0.05, self.robot, self.params, extra_theta=0)
         self.robot.smooth_tick_read_and_write(1, verbose=True)
         while True:
-            speed = p.readUserDebugParameter(self.slider_speed)
             amplitude = p.readUserDebugParameter(self.slider_amplitude)
             height = p.readUserDebugParameter(self.slider_height)
             frequency = round(p.readUserDebugParameter(self.slider_frequency))
@@ -78,7 +76,6 @@ class Acceleration:
 
                 for l in index_patte2:
                     thetas = kinematics.triangle(0, -0.05, height, amplitude, (self.sim.t + 1) * frequency , leg_id=l, extra_angle=extra_angle)
-                    print(height)
                     for m in range(3):
                         self.robot.legs[l][m].goal_position = thetas[m]
 
